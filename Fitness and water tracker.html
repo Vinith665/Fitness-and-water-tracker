@@ -1,0 +1,611 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness & Water Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .date {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 20px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: #666;
+        }
+
+        .advice-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .advice-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .weekly-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .day-box {
+            background: #f8f9fa;
+            padding: 15px 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .day-box.completed {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .day-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .day-stats {
+            font-size: 0.9em;
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💪 Fitness & Water Tracker</h1>
+            <div class="date" id="currentDate"></div>
+        </header>
+
+        <div class="dashboard">
+            <!-- Water Intake Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">💧</span>
+                    <h2 class="card-title">Water Intake</h2>
+                </div>
+                <div class="input-group">
+                    <label>Add Water (ml)</label>
+                    <input type="number" id="waterInput" placeholder="250" min="0">
+                </div>
+                <button onclick="addWater()">Add Water</button>
+               
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="waterProgress">0%</div>
+                    </div>
+                    <div class="stats">
+                        <span id="waterCurrent">0 ml</span>
+                        <span>Goal: <span id="waterGoal">2000 ml</span></span>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 20px;">
+                    <label>Daily Goal (ml)</label>
+                    <input type="number" id="waterGoalInput" value="2000" min="500" step="100">
+                    <button onclick="setWaterGoal()">Update Goal</button>
+                </div>
+            </div>
+
+            <!-- Exercise Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">🏃</span>
+                    <h2 class="card-title">Exercise Activity</h2>
+                </div>
+                <div class="input-group">
+                    <label>Exercise Type</label>
+                    <select id="exerciseType">
+                        <option value="Running">Running</option>
+                        <option value="Walking">Walking</option>
+                        <option value="Cycling">Cycling</option>
+                        <option value="Swimming">Swimming</option>
+                        <option value="Gym">Gym Workout</option>
+                        <option value="Yoga">Yoga</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" id="exerciseDuration" placeholder="30" min="1">
+                </div>
+                <button onclick="addExercise()">Log Exercise</button>
+               
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="exerciseProgress">0%</div>
+                    </div>
+                    <div class="stats">
+                        <span id="exerciseCurrent">0 min</span>
+                        <span>Goal: <span id="exerciseGoal">30 min</span></span>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 20px;">
+                    <label>Daily Goal (minutes)</label>
+                    <input type="number" id="exerciseGoalInput" value="30" min="10" step="5">
+                    <button onclick="setExerciseGoal()">Update Goal</button>
+                </div>
+            </div>
+
+            <!-- Health Advice Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">🎯</span>
+                    <h2 class="card-title">Health Insights</h2>
+                </div>
+                <div class="advice-box" id="adviceBox">
+                    <h3>Get Started!</h3>
+                    <p>Log your water intake and exercise to receive personalized health advice.</p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalWater">0</div>
+                        <div class="stat-label">Glasses</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalExercise">0</div>
+                        <div class="stat-label">Workouts</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Summary -->
+        <div class="weekly-summary">
+            <div class="card-header">
+                <span class="icon">📊</span>
+                <h2 class="card-title">Weekly Summary</h2>
+            </div>
+            <div class="summary-grid" id="weeklyGrid"></div>
+            <div id="achievement"></div>
+            <button onclick="resetWeek()" style="margin-top: 20px; background: #f5576c;">Reset Week</button>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let data = {
+            water: {
+                current: 0,
+                goal: 2000,
+                sessions: []
+            },
+            exercise: {
+                current: 0,
+                goal: 30,
+                sessions: []
+            },
+            weekly: Array(7).fill(null).map(() => ({
+                water: 0,
+                exercise: 0,
+                completed: false
+            })),
+            currentDay: new Date().getDay(),
+            streak: 0
+        };
+
+        // Initialize app
+        function init() {
+            loadData();
+            updateDate();
+            updateUI();
+            generateWeeklyGrid();
+        }
+
+        function updateDate() {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const now = new Date();
+            document.getElementById('currentDate').textContent =
+                `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+        }
+
+        function addWater() {
+            const input = document.getElementById('waterInput');
+            const amount = parseInt(input.value) || 0;
+           
+            if (amount > 0) {
+                data.water.current += amount;
+                data.water.sessions.push({amount, time: new Date()});
+                data.weekly[data.currentDay].water += amount;
+                input.value = '';
+                updateUI();
+                saveData();
+                checkDailyGoals();
+            }
+        }
+
+        function addExercise() {
+            const type = document.getElementById('exerciseType').value;
+            const duration = parseInt(document.getElementById('exerciseDuration').value) || 0;
+           
+            if (duration > 0) {
+                data.exercise.current += duration;
+                data.exercise.sessions.push({type, duration, time: new Date()});
+                data.weekly[data.currentDay].exercise += duration;
+                document.getElementById('exerciseDuration').value = '';
+                updateUI();
+                saveData();
+                checkDailyGoals();
+            }
+        }
+
+        function setWaterGoal() {
+            const goal = parseInt(document.getElementById('waterGoalInput').value);
+            if (goal >= 500) {
+                data.water.goal = goal;
+                updateUI();
+                saveData();
+            }
+        }
+
+        function setExerciseGoal() {
+            const goal = parseInt(document.getElementById('exerciseGoalInput').value);
+            if (goal >= 10) {
+                data.exercise.goal = goal;
+                updateUI();
+                saveData();
+            }
+        }
+
+        function updateUI() {
+            // Water progress
+            const waterPercent = Math.min((data.water.current / data.water.goal) * 100, 100);
+            document.getElementById('waterProgress').style.width = waterPercent + '%';
+            document.getElementById('waterProgress').textContent = Math.round(waterPercent) + '%';
+            document.getElementById('waterCurrent').textContent = data.water.current + ' ml';
+            document.getElementById('waterGoal').textContent = data.water.goal + ' ml';
+
+            // Exercise progress
+            const exercisePercent = Math.min((data.exercise.current / data.exercise.goal) * 100, 100);
+            document.getElementById('exerciseProgress').style.width = exercisePercent + '%';
+            document.getElementById('exerciseProgress').textContent = Math.round(exercisePercent) + '%';
+            document.getElementById('exerciseCurrent').textContent = data.exercise.current + ' min';
+            document.getElementById('exerciseGoal').textContent = data.exercise.goal + ' min';
+
+            // Quick stats
+            document.getElementById('totalWater').textContent = Math.floor(data.water.current / 250);
+            document.getElementById('totalExercise').textContent = data.exercise.sessions.length;
+            document.getElementById('streak').textContent = data.streak;
+
+            // Health advice
+            updateAdvice();
+            generateWeeklyGrid();
+        }
+
+        function updateAdvice() {
+            const waterPercent = (data.water.current / data.water.goal) * 100;
+            const exercisePercent = (data.exercise.current / data.exercise.goal) * 100;
+           
+            let advice = '';
+            let title = '';
+
+            if (waterPercent >= 100 && exercisePercent >= 100) {
+                title = '🌟 Excellent Work!';
+                advice = 'You\'ve met both your water and exercise goals today! Keep up this amazing consistency. Your body is thanking you!';
+            } else if (waterPercent >= 100) {
+                title = '💧 Great Hydration!';
+                advice = 'You\'ve hit your water goal! Now try to complete your exercise target to maximize your health benefits.';
+            } else if (exercisePercent >= 100) {
+                title = '💪 Workout Complete!';
+                advice = 'Excellent exercise session! Don\'t forget to stay hydrated - you still need ' + (data.water.goal - data.water.current) + 'ml of water today.';
+            } else if (waterPercent < 50 && exercisePercent < 50) {
+                title = '🚀 Let\'s Get Started!';
+                advice = 'Start your day strong! Drink a glass of water and do a quick 10-minute workout to boost your energy levels.';
+            } else if (waterPercent < 50) {
+                title = '💧 Hydration Reminder';
+                advice = 'You\'re doing well with exercise, but remember to drink more water. Aim for a glass every hour to stay properly hydrated.';
+            } else {
+                title = '🏃 Time to Move!';
+                advice = 'Your hydration is on track! Add some physical activity to complement it. Even a 15-minute walk can make a difference.';
+            }
+
+            document.getElementById('adviceBox').innerHTML = `<h3>${title}</h3><p>${advice}</p>`;
+        }
+
+        function generateWeeklyGrid() {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const grid = document.getElementById('weeklyGrid');
+            grid.innerHTML = '';
+
+            data.weekly.forEach((day, i) => {
+                const dayBox = document.createElement('div');
+                dayBox.className = 'day-box' + (day.completed ? ' completed' : '');
+               
+                dayBox.innerHTML = `
+                    <div class="day-name">${days[i]}</div>
+                    <div class="day-stats">
+                        💧 ${Math.floor(day.water / 250)}<br>
+                        🏃 ${day.exercise}m
+                    </div>
+                `;
+                grid.appendChild(dayBox);
+            });
+
+            updateAchievement();
+        }
+
+        function updateAchievement() {
+            const completedDays = data.weekly.filter(d => d.completed).length;
+            const achievementDiv = document.getElementById('achievement');
+           
+            if (completedDays >= 7) {
+                achievementDiv.innerHTML = '🏆 Perfect Week! You completed all 7 days!';
+                achievementDiv.style.display = 'block';
+            } else if (completedDays >= 5) {
+                achievementDiv.innerHTML = '⭐ Outstanding! ' + completedDays + ' days completed this week!';
+                achievementDiv.style.display = 'block';
+            } else if (completedDays >= 3) {
+                achievementDiv.innerHTML = '👍 Good Progress! ' + completedDays + ' days completed. Keep it up!';
+                achievementDiv.style.display = 'block';
+            } else {
+                achievementDiv.style.display = 'none';
+            }
+        }
+
+        function checkDailyGoals() {
+            const waterMet = data.water.current >= data.water.goal;
+            const exerciseMet = data.exercise.current >= data.exercise.goal;
+           
+            if (waterMet && exerciseMet && !data.weekly[data.currentDay].completed) {
+                data.weekly[data.currentDay].completed = true;
+                updateStreak();
+                saveData();
+                alert('🎉 Congratulations! You\'ve completed today\'s goals!');
+            }
+        }
+
+        function updateStreak() {
+            let streak = 0;
+            for (let i = data.currentDay; i >= 0; i--) {
+                if (data.weekly[i].completed) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            data.streak = streak;
+        }
+
+        function resetWeek() {
+            if (confirm('Are you sure you want to reset the weekly data?')) {
+                data.weekly = Array(7).fill(null).map(() => ({
+                    water: 0,
+                    exercise: 0,
+                    completed: false
+                }));
+                data.water.current = 0;
+                data.exercise.current = 0;
+                data.water.sessions = [];
+                data.exercise.sessions = [];
+                data.streak = 0;
+                updateUI();
+                saveData();
+            }
+        }
+
+        function saveData() {
+            const dataStore = {
+                ...data,
+                lastSaved: new Date().toISOString()
+            };
+            // Store in memory for this session
+            window.trackerData = dataStore;
+        }
+
+        function loadData() {
+            if (window.trackerData) {
+                const loaded = window.trackerData;
+                const lastDate = new Date(loaded.lastSaved);
+                const today = new Date();
+               
+                // Reset daily data if it's a new day
+                if (lastDate.toDateString() !== today.toDateString()) {
+                    data.water.current = 0;
+                    data.exercise.current = 0;
+                    data.water.sessions = [];
+                    data.exercise.sessions = [];
+                    data.currentDay = today.getDay();
+                } else {
+                    data = loaded;
+                }
+            }
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
